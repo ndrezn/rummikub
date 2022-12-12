@@ -1,5 +1,6 @@
 import itertools
 from functools import cache
+from datetime import datetime
 
 
 def create_permutations(board):
@@ -7,7 +8,6 @@ def create_permutations(board):
     return tile_orders
 
 
-@cache
 def is_valid(possible_run):
     colors = [i[1] for i in possible_run]
     values = [i[0] for i in possible_run]
@@ -34,7 +34,11 @@ def get_runs(unused_tiles, runs):
     # If we've used up all the tiles, we've found a solution
     if not unused_tiles:
         return runs, True
-    tile_orders = create_permutations(unused_tiles)
+
+    if len(set(unused_tiles)) == len(unused_tiles):
+        tile_orders = [sorted(unused_tiles, key=lambda i: (i[0], i[1]))]
+    else:
+        tile_orders = create_permutations(unused_tiles)
 
     for i in range(0, len(tile_orders)):
         order = tile_orders[i]
@@ -62,6 +66,9 @@ board = [
     (6, "r"),
     (3, "r"),
     (4, "r"),
+    (12, "w"),
+    (12, "r"),
+    (12, "b"),
     (3, "y"),
     (3, "w"),
     (1, "r"),
@@ -71,6 +78,10 @@ board = [
 
 
 print("Start:", board)
+s = datetime.now()
 board = sorted(board, key=lambda i: (i[0], i[1]))
 solution = get_runs(board, [])
+e = datetime.now()
+
+print(e - s)
 print("Solution:", solution)
