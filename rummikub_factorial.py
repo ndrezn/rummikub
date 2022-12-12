@@ -1,4 +1,5 @@
 import itertools
+from functools import cache
 
 
 def create_permutations(board):
@@ -6,6 +7,7 @@ def create_permutations(board):
     return tile_orders
 
 
+@cache
 def is_valid(possible_run):
     colors = [i[1] for i in possible_run]
     values = [i[0] for i in possible_run]
@@ -28,50 +30,47 @@ def is_valid(possible_run):
     return False
 
 
-def get_runs(tile_orders, sets, unused_tiles):
+def get_runs(unused_tiles, runs):
+    # If we've used up all the tiles, we've found a solution
     if not unused_tiles:
-        return sets, True
-    if not tile_orders:
-        return sets, False
+        return runs, True
+    tile_orders = create_permutations(unused_tiles)
 
     for i in range(0, len(tile_orders)):
         order = tile_orders[i]
 
-        # Size counter doesn't work because our end contition will not continue
         for i in range(0, len(board) + 1):
             if is_valid(order[0:i]):
-                new_sets = sets + [order[0:i]]
+                cur_runs = runs + [order[0:i]]
+                cur_unused = [j for j in unused_tiles if j not in order[0:i]]
 
-                new_tiles = order[i:]
-                new_orders = create_permutations(new_tiles)
-                new_unused = [j for j in unused_tiles if j not in order[0:i]]
+                # Recursive step... head down this branch and see if it's a solution
+                cur_runs, is_solution = get_runs(cur_unused, cur_runs)
 
-                # Recursive step... head down this tree and see if
-                # it is a valid solution.
-                sol_sets, is_solution = get_runs(new_orders, new_sets, new_unused)
-
+                # If we've found a valid set of runs end the loop
                 if is_solution:
-                    return sol_sets, True
+                    return cur_runs, True
 
-    return sets, False
+    # If the loop completes it means it's a bust
+    return runs, False
 
 
 board = [
     (1, "y"),
     (3, "r"),
+    (5, "r"),
     (6, "r"),
     (3, "r"),
     (4, "r"),
-    (5, "r"),
     (3, "y"),
     (3, "w"),
     (1, "r"),
     (1, "b"),
+    (7, "r"),
 ]
 
 
-print(board)
-board = sorted(board, key=lambda i: i[0])
-tile_orders = create_permutations(board)
-solution = get_runs(tile_orders, [], board)
-print(solution)
+print("Start:", board)
+board = sorted(board, key=lambda i: (i[0], i[1]))
+solution = get_runs(board, [])
+print("Solution:", solution)
