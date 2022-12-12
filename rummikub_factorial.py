@@ -57,23 +57,21 @@ def get_runs(tile_orders, sets, unused_tiles):
 
 
 board = [
+    (1, "y"),
+    (3, "r"),
+    (6, "r"),
     (3, "r"),
     (4, "r"),
     (5, "r"),
-    (6, "r"),
-    (3, "r"),
     (3, "y"),
-    (1, "w"),
     (3, "w"),
-    (1, "y"),
     (1, "r"),
     (1, "b"),
 ]
 
 
 print(board)
-
+board = sorted(board, key=lambda i: i[0])
 tile_orders = create_permutations(board)
 solution = get_runs(tile_orders, [], board)
-
 print(solution)
